@@ -106,8 +106,9 @@ class pnmio {
         *
         *   @param          string                  PNM image path + \filename
         *   @param          Image &                 PNM image structure to be saved
+        *   @param          boolean (optional)      indicates that a report should be written after the write
         */
-        void store_image(std::string, Image &);
+        void store_image(std::string, Image &, bool=false);
 
     private:
         /**
@@ -116,7 +117,15 @@ class pnmio {
         *   @param          char                    binary value (from PNM file)
         *   @return         unsigned int            converted integer value
         */
-        unsigned int bin_to_uint(char);
+        unsigned int bin_to_uint(unsigned char);
+
+		/**
+		*   Converts a 4 byte uint into a 1 byte binary value stored in a character.
+		*
+		*   @param          unsigned int            integer value
+		*   @return         char                    converted binary value (for PNM file)
+		*/
+		unsigned char uint_to_bin(unsigned int);
 
         /**
         *   Converts a string into its apparent 4 byte uint.
@@ -125,6 +134,14 @@ class pnmio {
         *   @return         unsigned int            converted integer value
         */
         unsigned int str_to_uint(std::string);
+
+		/**
+		*   Converts a 4 byte uint to its apparent string.
+		*
+		*   @param          unsigned int            integer value
+		*   @return         string                  converted string value
+		*/
+		std::string uint_to_str(unsigned int);
 
         /**
         *   Returns a string of all characters from an ifstream until a space,
