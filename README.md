@@ -4,14 +4,12 @@ Writes binary P5 and P6 PNM images from the same structs mentioned previously.
 
 So far:
 
-  - can read binary pgm images (RGB)
-  - can read binary ppm images (Grayscale)
-  - can print out a report about all the details of a pnm image
+  - can read & write binary pgm images (RGB)
+  - can read & write binary ppm images (Grayscale)
+  - prints out a detailed report when reading or writing a pnm image
   - works well with "ImageJ" program
   
 Next:
 
   - pnmio will be a namespace rather than a class
-  - write binary pgm images (RGB)
-  - write binary ppm images (Grayscale)
   - pnmio will have public helper functions to help further read the image data easier
