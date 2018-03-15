@@ -45,6 +45,7 @@ struct Image {
 *   @class pnmio
 *
 *   Assists with reading and writing of pnm image files.
+*   Note: use of 'noexcept' requires C++11
 */
 class pnmio {
 
@@ -109,6 +110,20 @@ class pnmio {
         *   @param          boolean (optional)      indicates that a report should be written after the write
         */
         void store_image(std::string, Image &, bool=false);
+
+        /**
+        *   Converts a Gray-scale Image structure into an RGB Image structure
+        *
+        *   @param          Image &                 PNM image structure to be manipulated
+        */
+        void convert_gray_to_rgb(Image &);
+
+        /**
+        *   Converts an RGB Image structure into a Gray-scale Image structure
+        *
+        *   @param          Image &                 PNM image structure to be manipulated
+        */
+        void convert_rgb_to_gray(Image &);
 
     private:
         /**

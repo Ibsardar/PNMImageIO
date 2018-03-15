@@ -21,6 +21,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "pnmio.h"
+
 #include <string>
 #include <iostream>
 #include <fstream>
@@ -106,14 +107,14 @@ Image pnmio::load_image(std::string fp, bool report, bool has_comment) {
     mn[1] = ifs.get();
 
     // assert format: 'P5' or 'P6'
-    if (mn[0] != 'P' && (mn[1] == '5' || mn[1] == '6')) // Grayscale or RGB only
+    if (mn[0] != 'P' && (mn[1] == '5' || mn[1] == '6')) // Gray-scale or RGB only
         throw read_failure_exception(fp);
 
     // next line
     ifs.get();
 
-    // skip comment line
-    if (has_comment)
+    // skip comment lines
+    while (ifs.peek() == '#')
         std::getline(ifs, ignore_text);
 
     // get image dimensions
@@ -124,15 +125,15 @@ Image pnmio::load_image(std::string fp, bool report, bool has_comment) {
     // next line
     ifs.get();
 
-    // get max rgb/greyscale magnitude
+    // get max rgb/gray-scale magnitude
     max_value = str_to_uint(str_until_space(ifs));
 
     // next line
     ifs.get();
 
     // calculate amount of expected data values
-    int amt = dim[0] * dim[1];
-    if (mn[1] == '6') amt *= 3; // 3x more data for RGB than Grayscale
+    unsigned int amt = dim[0] * dim[1];
+    if (mn[1] == '6') amt *= 3; // 3x more data for RGB than Gray-scale
 
     // gather data
     int cntr = 0;
@@ -178,7 +179,7 @@ Image pnmio::load_image(std::string fp, bool report, bool has_comment) {
 //
 // store_image
 //
-void pnmio::store_image(std::string fp, Image &img, bool report) {
+void pnmio::store_image(std::string fp, Image & img, bool report) {
 
 	// open binary mode
 	std::ofstream ofs(fp.c_str(), std::ios::binary | std::ios::out);
@@ -193,7 +194,7 @@ void pnmio::store_image(std::string fp, Image &img, bool report) {
 	ofs.put('\n');
 
 	// write comment
-	std::string comment = "Written by pnmio.cpp PNM Writer";
+	std::string comment = "# Written by pnmio.cpp PNM Writer";
 	ofs << comment;
 	ofs.put('\n');
 
@@ -236,4 +237,52 @@ void pnmio::store_image(std::string fp, Image &img, bool report) {
 
 	// exception if something went wrong
 	if (ofs.bad()) throw write_failure_exception(fp);
+}
+
+//
+//  convert_gray_to_rgb
+//
+void pnmio::convert_gray_to_rgb(Image & img) {
+
+    // ignore images which are already RGB
+    if (img.type == 1)
+        return;
+
+    // helper variables
+    const unsigned int pixels = img.width * img.height;
+
+    // convert gray to rgb
+    std::vector<unsigned int> rgb_data;
+    for (unsigned int i=0; i<pixels; i++) {
+        rgb_data.push_back(img.data[i]);
+        rgb_data.push_back(img.data[i]);
+        rgb_data.push_back(img.data[i]);
+    }
+
+    // set new data
+    img.data = rgb_data;
+    img.type = 1;
+}
+
+//
+//  convert_rgb_to_gray
+//
+void pnmio::convert_rgb_to_gray(Image & img) {
+
+    // ignore images which are already Gray-scale
+    if (img.type == 0)
+        return;
+
+    // helper variables
+    const unsigned int values = img.width * img.height * 3;
+
+    // convert rgb to gray
+    std::vector<unsigned int> gray_data;
+    for (unsigned int i=0; i<values; i+=3) {
+        gray_data.push_back((img.data[i]+img.data[i]+img.data[i]) / 3); // avg of 3 values
+    }
+
+    // set new data
+    img.data = gray_data;
+    img.type = 0;
 }
